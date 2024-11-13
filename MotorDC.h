@@ -1,59 +1,135 @@
-#ifndef _MOTOR_DC_H_
-#define _MOTOR_DC_H_
+#ifndef MOTOR_DC_H
+#define MOTOR_DC_H
 
-    #include <iostream>
-    #include <bcm2835.h>
+// ###############################################################################
+// Include libraries:
 
-    // MotorDC object.
-    class MotorDC
-    {
-        public:
+#include <iostream>
+#include <bcm2835.h>
 
-            struct Parameters
-            {
-                uint32_t RANGE;
-                uint8_t DIR_PIN;
-                uint8_t DIR_POL = 0;
-            }parameters;
+// ##############################################################################
 
-            float amp;                          // Motors Amper consumption. [mA]  
-            uint32_t pwm;                       // Motor PWM Value. [0, MOTOR_PWM_RANGE]
-            float duty;                         // Motor Duty Cycle Value. [-100, 100] %       
-            int8_t dir;                         // Motor Rotation direction. 1:CW, -1:CCW
-            
+/**
+ * @class MotorDC
+ *  */
+class MotorDC
+{
+    public:
 
+        /// @brief Last error accured for object.
+        std::string errorMessage;
 
-            std::string errorMessage;
+        /**
+         * @struct ParametersStructure
+         * @brief Parameters structure.
+         */
+        struct ParametersStructure
+        {
+            /**
+             * @brief The pwm value range for bcm2835_pwm_set_range() function.
+             * @note - PWM_frequency = BASE_CPU_CLOCK / (PWM_CLOCK_DIVIDER * PWM_RANGE)
+             */
+            uint32_t RANGE;
 
-            /** 
-             * @brief object constructor. set pwm channel, pwm clock divisor, input range, direction control pin, direction polarity.
-             * @param channel: can be 0 or 1. channel 0 assigned to pin GPIO 12. channel 1 assigned to pin GPIO 13.
-             * @param divisor: is pwm clock divider. can be in bcm2835PWMClockDivider enum values. Base cpu clock frequency depends on kernel settings. 
-             * PWM_frequency = BASE_CPU_CLOCK / (MOTOR_PWM_CLOCK_DIVIDER * MOTOR_PWM_RANGE)
-             * @param range: is the range value for pwm control input value.
-             * @param dir_pin: is the gpio pin number for motor direction control by motor driver.
-             * @param dir_pol: is the motor direction polarity. CW/CCW is depends on hardware wiring configuration. 
-            */ 
-            MotorDC(uint8_t channel, uint32_t divisor, uint32_t range, uint8_t dir_pin, uint8_t dir_pol = 0);
+            /**
+             * @brief The GPIO pin number for direction control of DC motor driver.
+             */
+            int8_t DIR_PIN;
 
-            bool begin(void);
+            /**
+             * @brief The polaririty of input pwm pulse direction. 0: normal, 1: reverse.
+             */
+            uint8_t DIR_POL;
 
-            // Clean setting on hardware. Stop MotorDC action.
-            void clean(void);
+            /**
+             * @brief The pwm channel number for raspberryPi. It can be 0 or 1. 
+             * @note - Channel 0 assigned to pin GPIO 12. 
+             * 
+             * @note - Channel 1 assigned to pin GPIO 13.
+             *  */ 
+            int8_t CHANNEL_NUM;
 
-            void control(float dutyCycleInput);
+            /**
+             * @brief The PWM clock divider can be one of the values in the bcm2835PWMClockDivider enum. 
+             * @note - Base CPU clock frequency depends on kernel settings. 
+             * 
+             * @note - PWM_frequency = BASE_CPU_CLOCK / (PWM_CLOCK_DIVIDER * PWM_RANGE)
+             */
+            uint32_t CLOCK_DEVIDER;
 
-        private:
-            
-            uint8_t _channel;
+            /**
+             * @brief Offset or deadzone value for duty cycle. [%].
+             */
+            float OFFSET_DUTY;
 
-            uint32_t _divisor;
+        }parameters;
 
-            float _dutyOffset;
-    };
+        struct ValuesStructure
+        {
+            /**
+             * @brief Motors Amper consumption. [mA] 
+             */
+            float amp;  
 
+            /**
+             * @brief Motor PWM Value. [0, MOTOR_PWM_RANGE]
+             *  */                          
+            uint32_t pwm;   
 
-#endif  // _MOTOR_DC_H_
+            /**
+             * @brief Motor Duty Cycle Value. [-100, 100] %
+             *  */                    
+            float duty;  
+
+            /**
+             * @brief Motor Rotation direction. 1:normal , -1:reverse, 0:stop
+             *  */                              
+            int8_t dir;                         
+        }value;
+
+        /** 
+         * @brief Default constructor. Init some varibles and parameters.
+        */ 
+        MotorDC();
+
+        /**
+         * @brief Destructor.
+         */
+        ~MotorDC();
+
+        /**
+         * @brief Init object. Check parameters. 
+         */
+        bool init(void);
+
+        /**
+         * @brief Clean setting on hardware. Stop MotorDC action.
+         *  */ 
+        void clean(void);
+
+        /**
+         * @brief Set duty cycle of motor. [%]
+         * @note Its value can be at range: [-100, 100]
+         */
+        void setDutyCycle(float dutyCycleInput);
+
+    private:
+        
+        /**
+         * @brief Check parameters validations.
+         * @return true if succeeded.
+         */
+        bool _checkParameters(void);
+
+        /**
+         * @brief The value gain for direction command correction. It depends on DIR_POL parameters.
+         */
+        int8_t _dirFactor;
+
+        float _mapSlope;
+};
+
+#endif  // MOTOR_DC_H
 
 
 
