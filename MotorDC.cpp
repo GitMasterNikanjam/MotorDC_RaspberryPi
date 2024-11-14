@@ -18,7 +18,6 @@ MotorDC::MotorDC()
  value.dir = 0;
  value.pwm = 0;
 
- _dirFactor = 1;
  _mapSlope = 1;
 
 }
@@ -34,15 +33,6 @@ bool MotorDC::init(void)
     if(_checkParameters() == false)
     {
         return false;
-    }
-
-    if(parameters.DIR_POL == 0)
-    {
-        _dirFactor = 1;
-    }
-    else
-    {
-        _dirFactor = -1;
     }
 
     _mapSlope = (100.0 - parameters.OFFSET_DUTY) / 100.0;

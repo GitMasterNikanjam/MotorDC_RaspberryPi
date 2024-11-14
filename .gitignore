@@ -1,0 +1,17 @@
+.vscode/
+*.o
+*.exe
+*.a
+build/
+bin/
+./bin/
+./*/bin/
+
+
+
+
+
+
+
+
+

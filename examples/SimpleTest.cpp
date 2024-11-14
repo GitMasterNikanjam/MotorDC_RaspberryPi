@@ -10,7 +10,8 @@ using namespace std;
 
 // ######################################################################################
 
-MotorDC motor;
+MotorDC motorAZ;
+MotorDC motorEL;
 
 // ###################################################################################
 
@@ -25,16 +26,21 @@ int main(void)
     if (!bcm2835_init())
         return false;
 
-    motor.parameters.CHANNEL_NUM = 1;
-    motor.parameters.CLOCK_DEVIDER = BCM2835_PWM_CLOCK_DIVIDER_32;
-    motor.parameters.DIR_PIN = 19; // 1;
-    motor.parameters.DIR_POL = 1;
-    motor.parameters.OFFSET_DUTY = 4;
-    motor.parameters.RANGE = 24000;
+    motorAZ.parameters.CHANNEL_NUM = 0;
+    motorAZ.parameters.CLOCK_DEVIDER = BCM2835_PWM_CLOCK_DIVIDER_32;
+    motorAZ.parameters.DIR_PIN = 1;
+    motorAZ.parameters.DIR_POL = 0;
+    motorAZ.parameters.OFFSET_DUTY = 4;
+    motorAZ.parameters.RANGE = 24000;
 
-    if(!motor.init())
+    motorEL.parameters = motorAZ.parameters;
+    motorEL.parameters.DIR_PIN = 19;
+    motorEL.parameters.CHANNEL_NUM = 1;
+
+
+    if(!motorAZ.init() || !motorEL.init())
     {
-        cout << motor.errorMessage << endl;
+        cout << "Error: MotorDC init failed." << endl;
         while(1);
     }
 
@@ -55,8 +61,9 @@ void loop(void)
         printf("Pleas input duty cycle [%]: ");
         cin>> dutyCycleInput;
 
-        motor.setDutyCycle(dutyCycleInput);
+        // motorAZ.setDutyCycle(dutyCycleInput);
+        motorEL.setDutyCycle(dutyCycleInput);
 
-        printf("pwmOutput value is: %d\n\n", motor.value.pwm);
+        printf("Motor duty cycle value is: %f\n\n", motorEL.value.duty);
     }
 }

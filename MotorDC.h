@@ -28,21 +28,29 @@ class MotorDC
             /**
              * @brief The pwm value range for bcm2835_pwm_set_range() function.
              * @note - PWM_frequency = BASE_CPU_CLOCK / (PWM_CLOCK_DIVIDER * PWM_RANGE)
+             * 
+             * @note There is not any limitation for range value.
              */
             uint32_t RANGE;
 
             /**
              * @brief The GPIO pin number for direction control of DC motor driver.
+             * @note This GPIO pin must set as output.
              */
             int8_t DIR_PIN;
 
             /**
-             * @brief The polaririty of input pwm pulse direction. 0: normal, 1: reverse.
+             * @brief The polaririty of direction control. 0: normal, 1: reverse.
+             * @note The value of 0 means that for positive commands the digital value of direction pin is LOW.
+             * 
+             * @note The value of 1 means that for positive commands the digital value of direction pin is HIGH.
              */
             uint8_t DIR_POL;
 
             /**
              * @brief The pwm channel number for raspberryPi. It can be 0 or 1. 
+             * @note With select channel number the GPIO pin for pwm generation automaticlly set.
+             * 
              * @note - Channel 0 assigned to pin GPIO 12. 
              * 
              * @note - Channel 1 assigned to pin GPIO 13.
@@ -59,6 +67,7 @@ class MotorDC
 
             /**
              * @brief Offset or deadzone value for duty cycle. [%].
+             * @warning Be careful about set this parameters. 
              */
             float OFFSET_DUTY;
 
@@ -68,6 +77,7 @@ class MotorDC
         {
             /**
              * @brief Motors Amper consumption. [mA] 
+             * @note The value of amp must update from out of object.
              */
             float amp;  
 
@@ -122,10 +132,9 @@ class MotorDC
         bool _checkParameters(void);
 
         /**
-         * @brief The value gain for direction command correction. It depends on DIR_POL parameters.
+         * @brief The slope of line for map the value of input duty cycle to pwm input. 
+         * @note This value depends on OFFSET_DUTY parameters.
          */
-        int8_t _dirFactor;
-
         float _mapSlope;
 };
 
