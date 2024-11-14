@@ -3,8 +3,8 @@
 *.exe
 *.a
 build/
+bin
 bin/
-./bin/
 ./*/bin/
 
 
