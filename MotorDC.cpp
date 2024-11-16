@@ -104,6 +104,8 @@ void MotorDC::setDutyCycle(float dutyCycleInput)
 
 void MotorDC::clean(void)
 {
+    setDutyCycle(0);
+    
     switch(parameters.CHANNEL_NUM)
     {
         case 0:
