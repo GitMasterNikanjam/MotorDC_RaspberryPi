@@ -98,6 +98,8 @@ void MotorDC::setDutyCycle(float dutyCycleInput)
         value.pwm = 0;
     }
     
+    value.duty = (float)value.pwm / (float)parameters.RANGE * 100.0;
+    
     bcm2835_gpio_write(parameters.DIR_PIN, dir_temp);
     bcm2835_pwm_set_data(parameters.CHANNEL_NUM, value.pwm);
 }
